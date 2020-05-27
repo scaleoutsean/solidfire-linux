@@ -1,0 +1,28 @@
+# This file describes the network interfaces available on your system
+# For more information, see netplan(5).
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    ens5f0:
+      match:
+        macaddress: "d8:c4:a7:65:0f:d2"
+      dhcp4: no
+      dhcp6: no
+      mtu: 9000
+    ens5f1:
+      match:
+        macaddress: "d8:c4:a7:65:0f:d3"
+      dhcp4: no
+      dhcp6: no
+      mtu: 9000
+  bonds:
+    bond0:
+      interfaces: [ens5f0, ens5f1]
+      dhcp4: yes
+      addresses: [192.168.93.2/24]
+      mtu: 9000
+      parameters:
+        mode: 802.3ad
+        mii-monitor-interval: 1
+
