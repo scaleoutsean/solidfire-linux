@@ -70,27 +70,32 @@ For additional SolidFire-related information, please refer to [awesome-solidfire
 - Consider disabling IPv6 on interfaces used on iSCSI network(s), if you don't have other, IPv6-capable iSCSI targets in your environment
 - Recent Linux distributions come with all drivers required and some (like RHEL) may be more prescriptive and support only specific versions. But, as mentioned above, free feel to download and use any driver version that works for you and that is supported by your distro (if you care about that). 
   - Mellanox ConnectX-4 Lx NIC driver ([Mellanox EN and OFED Drivers](https://www.mellanox.com/products/adapter-ethernet-sw) - mlnx-en-dkms ensures auto-rebuild on kernel change. NOTE: the [NIC firmware](https://www.mellanox.com/support/firmware/connectx4lxen) tested with various Mellanox drivers is distributed separately, so best take it easy to rushing with driver updates! The safest approach is to leave the driver as-is until you're sure you need a different one.
-  - (Optional, for those who use RJ-45 NIC ports) Intel X550 NIC driver ([v5.7.1](https://downloadcenter.intel.com/download/14687/Intel-Network-Adapter-Driver-for-PCIe-Intel-10-Gigabit-Ethernet-Network-Connections-Under-Linux-)
+  - (Optional, for those who use RJ-45 NIC ports) Intel X550 NIC driver ([v5.7.1](https://downloadcenter.intel.com/download/14687/Intel-Network-Adapter-Driver-for-PCIe-Intel-10-Gigabit-Ethernet-Network-Connections-Under-Linux-))
   - (Optional) [ASpeed Linux Driver](https://www.aspeedtech.com/support.php?fPath=24) - to address the cosmetic "/lib/firmware/ast_dp501_fw.bin for module ast" warning
-- On NetApp H400 Series compute nodes (6 network ports) it may be more convenient to combine 2 or 4 Mellanox NICs into 1 or 2 LACP Teams and use Trunk (or Hybrid, with Mellanox) Mode on the network switch ports and VLANs on vSwitch to segregate workloads and tenants, than having 2 or 3 groups of teamed interfaces. Some users prefer to physically segregate traffic (DMZ, Public, Private).
+- On NetApp H400 Series compute nodes (6 network ports) it may be more convenient to combine 2 or 4 Mellanox NICs into 1 or 2 LACP Teams and use Trunk (or optionally Hybrid, with Mellanox switches) Mode on network switch ports and VLANs on bridges or vSwitches to segregate workloads and tenants, than having 2 or 3 groups of teamed interfaces. Some users prefer to physically segregate traffic (DMZ, Public, Private) before applying additional isolation (bridges, VLANs).
 
 #### Network Adapters and Ports
 
-- SIOM Port 1 & 2 are 1/10 GigE Intel X550 (RJ-45)
+- enp24s0f0 and enp24s0f1 are 1/10 GigE Intel X550 (RJ-45)
 - The rest are Mellanox Connect-4 Lx with SFP28 (2 dual-ported NICs, SFP28/SFP+)
-  - Up to 6 ports that may be used. From left to right we label them A through F (HCI Port column)
+  - enp25s0f0
+  - enp25s0f1
+  - enp59s0f0
+  - enp59s0f1
+- Up to 6 ports that may be used. From left to right we label them A through F (HCI Port column)
 - IPMI (RJ-45) port is not shown
 
 ```
-| PCI | NIC  | Bus | Device | Func | HCI Port | Default OS Name   | Description (numeric suffix varies)     |
-|-----|------|-----|--------|------|----------|-------------------|-----------------------------------------|
-| 6   |  x   | 24  | 0      | 0    | A        | SIOM Port 1       | Intel(R) Ethernet Controller X550       |
-| 6   |  x   | 24  | 0      | 1    | B        | SIOM Port 2       | Intel(R) Ethernet Controller X550       |
-| 7   | NIC1 | 25  | 0      | 0    | C        | Ethernet 1        | Mellanox ConnectX-4 Lx Ethernet Adapter |
-| 7   | NIC1 | 25  | 0      | 1    | D        | Ethernet 2        | Mellanox ConnectX-4 Lx Ethernet Adapter |
-| 1   | NIC2 | 59  | 0      | 1    | E        | CPU1 Slot1 Port 1 | Mellanox ConnectX-4 Lx Ethernet Adapter |
-| 1   | NIC2 | 59  | 0      | 0    | F        | CPU1 Slot1 Port 2 | Mellanox ConnectX-4 Lx Ethernet Adapter |
+| PCI | Bus | Device | Func | HCI Port | Default OS Name   | Description (numeric suffix varies)     |
+|-----|-----|--------|------|----------|-------------------|-----------------------------------------|
+| 6   | 24  | 0      | 0    | A        | enp24s0f0         | Intel(R) Ethernet Controller X550       |
+| 6   | 24  | 0      | 1    | B        | enp24s0f1         | Intel(R) Ethernet Controller X550       |
+| 7   | 25  | 0      | 0    | C        | enp25s0f0         | Mellanox ConnectX-4 Lx Ethernet Adapter |
+| 7   | 25  | 0      | 1    | D        | enp25s0f1         | Mellanox ConnectX-4 Lx Ethernet Adapter |
+| 1   | 59  | 0      | 1    | E        | enp59s0f0         | Mellanox ConnectX-4 Lx Ethernet Adapter |
+| 1   | 59  | 0      | 0    | F        | enp59s0f1         | Mellanox ConnectX-4 Lx Ethernet Adapter |
 ```
+- (TODO: verify port, function and name (enp59s0f0 and enp59s0f1) mapping for HCI Ports E & F)
 
 - NetApp HCI H410C with 6 cables and VMware ESXi uses vSS (switch) and assigns ports as per below. With Linux we may configure them differently so this is just for reference purposes to get you started:
 
@@ -105,7 +110,7 @@ For additional SolidFire-related information, please refer to [awesome-solidfire
 | F        | Trunk  | VM Network & Live Migration   |
 ```
 
-- Because ports A and B are RJ-45 port, most users choose to team ports C-F in one or two (e.g. iSCSI and the rest) Teams, while A and B are normally used for management (if at all), so let's focus on Mellanox NICs:
+- Because A and B are RJ-45 ports, most users choose to team ports C-F in one or two (e.g. iSCSI and the rest) Teams, while A and B are normally used for management (if at all), so let's focus on the Mellanox NICs:
 ```
 Device (19:00.0):
         19:00.0 Ethernet controller: Mellanox Technologies MT27710 Family [ConnectX-4 Lx]
@@ -144,12 +149,13 @@ Device (3b:00.1):
 
 - Two Mellanox Connect-4 Lx with SFP28 (1 dual-ported NIC)
   - See Mellanox network driver-related notes under H410C
-  - Because there are only two NICs, most would likely team two ports using LACP.
+  - Because there are only two NICs, most would likely team two ports using LACP
   - Mellanox NICs in `lspci` output:
 ```shell
 3b:00.0 Ethernet controller: Mellanox Technologies MT27710 Family [ConnectX-4 Lx]
 3b:00.1 Ethernet controller: Mellanox Technologies MT27710 Family [ConnectX-4 Lx]
 ```
+  - Adapter names (Ubuntu 18.04 and 20.04): ens5f0 and ens5f1
 - NVIDIA Tesla T4 driver (selected H615C model): use a version supported by your ISV or OS. At the time of writing I used Ubuntu 20.04 with NVIDIA Tesla T4 driver 440.64.00 and CUDA 10.2
 
 ### Sample Network Configuration Files
