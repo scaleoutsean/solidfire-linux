@@ -189,6 +189,7 @@ Device (3b:00.1):
 - [Connect XenServer to SolidFire iSCSI Target](https://youtu.be/kBePozPT_6A) - for XenServer v7; for v8 (aka Citrix Hypervisor) please see the official NetApp HCI - Citrix Hypervisor solution documentation
 - [Storage failover and failback with Kubernetes, NetApp Trident and SolidFire](https://youtu.be/f-PJGCtEojQ) - long and slow, but maybe useful to your planning of failover for K8s environments with SolidFire
 - [Oracle VirtualBox 6.1 and SolidFire](https://youtu.be/xZJdAZ_FOog) - VirtualBox can directly use SolidFire iSCSI targets
+- [Rubrik in a Linux environment with NetApp HCI compute nodes](https://youtu.be/4C4o5DUhmrQ)
 
 ## Frequently Asked Questions
 
