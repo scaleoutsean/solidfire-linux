@@ -11,13 +11,17 @@ For additional SolidFire-related information, please refer to [awesome-solidfire
     - [Networking](#networking)
     - [iSCSI](#iscsi)
     - [Multipath I/O](#multipath-io)
+    - [udev rules](#udev-rules)
   - [Virtualization](#virtualization)
   - [Containers](#containers)
   - [NetApp HCI Compute Nodes](#netapp-hci-compute-nodes)
+    - [NetApp Active IQ OneCollect](#netapp-active-iq-onecollect)
     - [NetApp H410C (and H300E/H500E/H700E)](#netapp-h410c-and-h300eh500eh700e)
       - [Network Adapters and Ports](#network-adapters-and-ports)
     - [NetApp H615C](#netapp-h615c)
-    - [Sample Network Configuration Files](#sample-network-configuration-files)
+    - [Sample Configuration Files](#sample-configuration-files)
+      - [netplan](#netplan)
+      - [fstab](#fstab)
   - [Demo Videos](#demo-videos)
   - [Frequently Asked Questions](#frequently-asked-questions)
   - [License and Trademarks](#license-and-trademarks)
@@ -54,28 +58,62 @@ For additional SolidFire-related information, please refer to [awesome-solidfire
 
 - SolidFire supports open-iscsi iSCSI initiator
   - Default options work well (the KISS principle!)
-  - I haven't seen evidence that changing iSCSI initiator options helps more than it hurts, at least for workloads that commonly run on SolidFire
+    - If using RHCOS >=4.5 or RHEL or CentOS >=8.2 ensure that the CHAP authentication algorithm is set to MD5 in /etc/iscsi/iscsid.conf (`sudo sed -i 's/^\(node.session.auth.chap_algs\).*/\1 = MD5/' /etc/iscsi/iscsid.conf`)
+  - I haven't seen evidence that changing other iSCSI initiator options helps more than it hurts, at least for workloads that commonly run on SolidFire
 - Use CHAP, IQNs, VLANs or "all of the above"?
   - CHAP is easier and recommended for NetApp Trident (i.e. container environments)
   - KVM clusters can use IQNs and SolidFire Volume Access Group (VAG) let you group IQNs from multiple systems into goups so when a volume is created and assigned to a VAG, it is accessible to any of the hosts in the IQN group
-  - An environment can use mutiple approaches (e.g. IQNs from several KVM servers grouped into SolidFire Volume Access Groups and 3 CHAP accounts for 3 Kubernetes clusters in the same environment)
+  - An environment can use multiple approaches (e.g. IQNs from several KVM servers grouped into SolidFire Volume Access Groups and 3 CHAP accounts for 3 Kubernetes clusters in the same environment)
   - Volume access may require both VAG membership and CHAP authentication (see Element documentation for the higher v11 versions or v12.0)
-- Configure and set up Linux client as you normally would, based on your Linux distribution's documentation for iSCSI. List of packages required for iSCSI on RPM and DEB based distros can be found in [NetApp Trident docs](https://netapp-trident.readthedocs.io/en/latest/docker/install/host_config.html), but you should really read generic docs for you distribution. As mentioned earlier, multipathd and device-mapper-multipath are usually not required if you only use SolidFire iSCSI targets.
+- Configure and set up Linux client as you normally would, based on your Linux distribution's documentation for iSCSI. List of packages required for iSCSI on RPM and DEB based distributions can be found in [NetApp Trident docs](https://netapp-trident.readthedocs.io/en/latest/docker/install/host_config.html), but you should really read generic docs for you distribution. As mentioned earlier, multipathd and device-mapper-multipath are usually not required if you only use SolidFire iSCSI targets.
 
 ### Multipath I/O
 
-- If you don't have multiple links to SolidFire or other iSCSI target(s), you probably don't need it (one thing less to install, configure, wait for to start-up, and break-fix)
+- If you don't have multiple links to SolidFire or other iSCSI target(s), you probably don't need it (one thing less to install, configure, wait for to start-up, and break-fix). Of course, you'd have VM or container failovers if a switch or cable fails
 - There are no recent performance comparisons of various bonding options for SolidFire Linux clients. LACP should give best results in terms of performance, but feel free to experiment with other options
+- multipath.conf: try adding a `device` section that looks like this (this should be quite accurate; VMware MPIO settings for SolidFire also balance I/O in batches of 10)
+
+```raw
+devices {
+  device {
+  vendor "SolidFir"
+  product "SSD SAN"
+  path_grouping_policy multibus
+  path_selector "round-robin 0"
+  path_checker tur
+  hardware_handler "0"
+  failback immediate
+  rr_weight uniform
+  rr_min_io 10
+  rr_min_io_rq 10
+  features "0"
+  no_path_retry 24
+  prio const
+  skip_kpartx yes
+  }
+}
+```
+
+### udev rules
+
+- There are various udev rule examples in SolidFire Linux-related TRs, but like with other "tuning" suggestions I haven't seen much evidence that one device setting (say, `max_sectors_kb=1024`) is better or worse than any other, any why. Until I know, I'd rather not customize those settings
+- `udevadm info` can be used to show you how to compose a SolidFire specific rule
+- TODO
 
 ## Virtualization
 
-- See the Linux section of [awesome-solidfire](https://github.com/scaleoutsean/awesome-solidfire#linux-related-openstack-kvm-xenserver-oracle-vm)
+- See the Virtualization section of [awesome-solidfire](https://github.com/scaleoutsean/awesome-solidfire#virtualization)
 
 ## Containers
 
-- See the Containers section of [awesome-solidfire](https://github.com/scaleoutsean/awesome-solidfire#storage-provisioning-for-containers-csi-and-docker)
+- See the Containers section of [awesome-solidfire](https://github.com/scaleoutsean/awesome-solidfire#kubernetes-and-containers)
 
 ## NetApp HCI Compute Nodes
+
+### NetApp Active IQ OneCollect
+
+- [OneCollect](https://mysupport.netapp.com/site/tools/tool-eula/activeiq-onecollect/download) can be set to periodically collect event logs from SolidFire and Windows Server systems collected to it
+- It also makes it convenient and easy to submit logs to NetApp Support
 
 ### NetApp H410C (and H300E/H500E/H700E)
 
@@ -97,7 +135,7 @@ For additional SolidFire-related information, please refer to [awesome-solidfire
 - Up to 6 ports that may be used. From left to right we label them A through F (HCI Port column)
 - IPMI (RJ-45) port is not shown
 
-```
+```raw
 | PCI | Bus | Device | Func | HCI Port | Default OS Name   | Description                             |
 |-----|-----|--------|------|----------|-------------------|-----------------------------------------|
 | 6   | 24  | 0      | 0    | A        | enp24s0f0         | Intel(R) Ethernet Controller X550       |
@@ -112,7 +150,7 @@ For additional SolidFire-related information, please refer to [awesome-solidfire
 
 - NetApp HCI H410C with 6 cables and VMware ESXi uses vSS (switch) and assigns ports as per below. With Linux we may configure them differently so this is just for reference purposes to get you started:
 
-```
+```raw
 | HCI Port | Mode   | Purpose                       |
 |----------|--------|-------------------------------|
 | A        | Access | Management (X550)             |
@@ -125,7 +163,7 @@ For additional SolidFire-related information, please refer to [awesome-solidfire
 
 - Because A and B are RJ-45 ports, most users choose to team ports C-F in one or two (e.g. iSCSI and the rest) Teams, while A and B are normally used for management (if at all), so let's focus on the Mellanox NICs:
 
-```
+```raw
 Device (19:00.0):
         19:00.0 Ethernet controller: Mellanox Technologies MT27710 Family [ConnectX-4 Lx]
         Link Width: x8
@@ -174,12 +212,54 @@ Device (3b:00.1):
 
 - NVIDIA Tesla T4 driver (selected H615C model): [download](https://www.nvidia.com/download/index.aspx?lang=en-us) a version from nvidia.com supported by your ISV or OS. At the time of writing the current driver NVIDIA Tesla T4 v440.64.00 and CUDA v10.2 worked without issues on H615C with Ubuntu 20.04. Select Product Type Tesla, Product Series T-Series, Product Tesla T4.
 
-### Sample Network Configuration Files
+### Sample Configuration Files
+
+#### netplan
 
 - Basic Netplan configuration file for H615C: [network_netplan_h615c_2_cable_01-netcfg.yaml](./reference/network_netplan_h615c_2_cable_01-netcfg.yaml)
-  - Netplan is used because it's still less popular (i.e. it's not as easy to find reference configuration files for it)
-  - The file can be easiy adjusted and expanded for H410C. Feel free to add bonds, bridges, and VLANs...
+  - Netplan example is provided because it's less popular (i.e. it's not as easy to find reference configuration files for it)
+  - The file can be easily adjusted. Feel free to add bonds, bridges, and VLANs...
   - NetApp HCI NVA for Redhat OpenShift provides a prescriptive guidance for networking layout on a RPM distribution
+- Netplan with 3 NICs: bridge on the first NIC (ens160) and DHCP on iSCSI network (ens192 & ens224), from Ubuntu 20.04
+
+```raw
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    ens160:
+      dhcp4: no 
+      dhcp6: no 
+    ens192:
+      dhcp4: true
+      dhcp6: no 
+    ens224:
+      dhcp4: true
+      dhcp6: no 
+  bridges:
+  bridges:
+    br0:
+      interfaces: [ens160]
+      addresses: [192.168.1.157/24]
+      gateway4: 192.168.1.1
+      nameservers:
+        addresses: [192.168.1.5, 192.168.1.4]
+      parameters:
+        stp: true
+        forward-delay: 4
+      dhcp4: no
+      dhcp6: no
+```
+
+#### fstab
+
+- This isn't to say this is "better" than other approaches. You'd need a different path with multipath, but if you keep it simple and have one NIC for iSCSI, this can work without device slippage just like it could with `blkid`'s. Key is in `_netdev,x-systemd.requires=iscsi.service`, as _netdev is needed for iSCSI. Used on Ubuntu 20.04.
+
+```raw
+/dev/disk/by-path/ip-192.168.103.30:3260-iscsi-iqn.2010-01.com.solidfire:mn4y.kvmv01.359-lun-0 /data ext4 _netdev,x-systemd.requires=iscsi.service 0 1
+```
+
+- SolidFire Storage VIP cannot be changed, and neither can unique Cluster ID (`mn4y`, above). Volume Name (`kvm01`) can be changed, but Volume ID (359) cannot. `lun-0` is unpartitioned /dev/sdb (`mkfs.ext4 /dev/sdb`). If you don't change volume name, device name won't change.
 
 ## Demo Videos
 
