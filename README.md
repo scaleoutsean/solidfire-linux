@@ -256,10 +256,11 @@ network:
 - This isn't to say this is "better" than other approaches. You'd need a different path with multipath, but if you keep it simple and have one NIC for iSCSI, this can work without device slippage just like it could with `blkid`'s. Key detail is `_netdev,x-systemd.requires=iscsi.service`, because _netdev is needed for iSCSI. Example from Ubuntu 20.04, but should work with other Linux distributions.
 
 ```raw
-/dev/disk/by-path/ip-192.168.103.30:3260-iscsi-iqn.2010-01.com.solidfire:mn4y.kvmv01.359-lun-0 /data ext4 _netdev,x-systemd.requires=iscsi.service 0 1
+/dev/disk/by-path/ip-192.168.103.30:3260-iscsi-iqn.2010-01.com.solidfire:mn4y.kvmv01.359-lun-0 /data ext4 _netdev,x-systemd.requires=iscsi.service,noatime,discard 0 1
 ```
 
 - SolidFire Storage VIP cannot be changed, and neither can unique Cluster ID (`mn4y`, above). Volume Name (`kvm01`) can be changed, but Volume ID (359) cannot. `lun-0` is a partitionless volume (`mkfs.ext4 /dev/sdb`). So if you don't change volume name, device name from the fstab example above won't change.
+- For periodic discard, and discard of non-ext4 filesystems, see [Archlinux Wiki](https://wiki.archlinux.org/index.php/Solid_state_drive)
 
 ## Demo Videos
 
