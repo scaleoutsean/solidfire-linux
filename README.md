@@ -266,6 +266,8 @@ network:
 - [OpenStack](https://youtu.be/-1as-njjNzc) - basic demo of how OpenStack Cinder works with SolidFire iSCSI
 - [Rancher k3s & NetApp Trident with SolidFire iSCSI back-end](https://youtu.be/CS5iEPGOfA4)
 - [Booting Debian Linux from SolidFire iSCSI Target](https://youtu.be/JVZoMGxte4c) - based on generic Linux documentation
+- [Essential KVM Storage management with SolidFire and Cockpit Web UI, virsh and SolidFire Python CLI](https://youtu.be/8cYk2gNnMo8)
+- [Backup and Restore of KVM with SolidFire, Duplicati and S3 object storage](https://youtu.be/wP8nAgFo8og)
 - [Connect XenServer to SolidFire iSCSI Target](https://youtu.be/kBePozPT_6A) - for XenServer v7; for v8 (aka Citrix Hypervisor) please see the official NetApp HCI - Citrix Hypervisor solution documentation
 - [Storage failover and failback with Kubernetes, NetApp Trident and SolidFire](https://youtu.be/f-PJGCtEojQ) - long and slow, but maybe useful to your planning of failover for K8s environments with SolidFire
 - [Oracle VirtualBox 6.1 and SolidFire](https://youtu.be/xZJdAZ_FOog) - VirtualBox can directly use SolidFire iSCSI targets
