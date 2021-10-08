@@ -4,27 +4,34 @@ Notes on Linux clusters with NetApp SolidFire, including (but not limited to) Ne
 
 For additional SolidFire-related information, please refer to [awesome-solidfire](https://github.com/scaleoutsean/awesome-solidfire).
 
+<!-- TOC -->
+
 - [solidfire-linux: Notes on Linux with NetApp SolidFire](#solidfire-linux-notes-on-linux-with-netapp-solidfire)
-  - [General Notes](#general-notes)
-  - [iSCSI Client Configuration Notes](#iscsi-client-configuration-notes)
-    - [NetApp TR-4639](#netapp-tr-4639)
-    - [Networking](#networking)
-    - [iSCSI](#iscsi)
-    - [Multipath I/O](#multipath-io)
-    - [udev rules](#udev-rules)
-  - [Virtualization](#virtualization)
-  - [Containers](#containers)
-  - [NetApp HCI Compute Nodes](#netapp-hci-compute-nodes)
-    - [NetApp Active IQ OneCollect](#netapp-active-iq-onecollect)
-    - [NetApp H410C (and H300E/H500E/H700E)](#netapp-h410c-and-h300eh500eh700e)
-      - [Network Adapters and Ports](#network-adapters-and-ports)
-    - [NetApp H615C](#netapp-h615c)
-    - [Sample Configuration Files](#sample-configuration-files)
-      - [netplan](#netplan)
-      - [fstab](#fstab)
-  - [Demo Videos](#demo-videos)
-  - [Frequently Asked Questions](#frequently-asked-questions)
-  - [License and Trademarks](#license-and-trademarks)
+    - [General Notes](#general-notes)
+    - [iSCSI Client Configuration Notes](#iscsi-client-configuration-notes)
+        - [NetApp TR-4639](#netapp-tr-4639)
+        - [Networking](#networking)
+        - [iSCSI](#iscsi)
+        - [Multipath I/O](#multipath-io)
+        - [udev rules](#udev-rules)
+    - [Virtualization](#virtualization)
+    - [Containers](#containers)
+    - [NetApp HCI Compute Nodes](#netapp-hci-compute-nodes)
+        - [NetApp Active IQ OneCollect](#netapp-active-iq-onecollect)
+        - [NetApp H410C and H300E/H500E/H700E](#netapp-h410c-and-h300eh500eh700e)
+            - [Network Adapters and Ports](#network-adapters-and-ports)
+        - [NetApp H615C](#netapp-h615c)
+        - [Sample Configuration Files](#sample-configuration-files)
+            - [netplan](#netplan)
+            - [fstab](#fstab)
+        - [Linux Driver Updates for NetApp HCI Compute Nodes](#linux-driver-updates-for-netapp-hci-compute-nodes)
+            - [Installation](#installation)
+            - [Update](#update)
+    - [Demo Videos](#demo-videos)
+    - [Frequently Asked Questions](#frequently-asked-questions)
+    - [License and Trademarks](#license-and-trademarks)
+
+<!-- /TOC -->
 
 ## General Notes
 
@@ -261,6 +268,27 @@ network:
 
 - SolidFire Storage VIP cannot be changed, and neither can unique Cluster ID (`mn4y`, above). Volume Name (`kvm01`) can be changed, but Volume ID (359) cannot. `lun-0` is a partitionless volume (`mkfs.ext4 /dev/sdb`). So if you don't change volume name, device name from the fstab example above won't change.
 - For periodic discard, and discard of non-ext4 filesystems, see [Archlinux Wiki](https://wiki.archlinux.org/index.php/Solid_state_drive)
+
+### Linux Driver Updates for NetApp HCI (Compute) Nodes
+
+This are my unofficial notes. Please verify with your NetApp account team if you want to know the official version.
+#### Installation
+
+General approach (example for Mellanox NIC(s) on the H410C and H615C):
+
+- Check the latest NetApp HCI drivers (login for support site required) and with that find the latest f/w for your system and NIC. Pay attention - H615C and H410C may each support a different Mellanox Lx4 firmware version, although the both use the same chip
+- Now with this firmware version information go to NVIDIA/Mellanox driver downloads and start looking from newer Ethernet drivers for Linux. Driver Release Notes contain the information about recommended and supported NIC f/w
+- Do the same for the Intel NIC (if applicable, such as on the H410C)
+- Update NIC f/w first and then install a matching Linux NIC driver
+- If you install a Mellanox driver that's very new and does not support f/w you have, it may offer to upgrade firmware. If you want to us the NetApp-supplied f/w, decline this offer and install a driver that supports the f/w you want to use
+
+#### Update
+
+You can update compute node firmware (including BIOS, BMC drivers and the rest) from NetApp HCI NDE or manually. If another OS (such as Linux) is already installed, you'd probably want to upgrade f/w without NDE.
+
+When NetApp HCI releases a f/w upgrade in a new NDE version, you could get the f/w from the HCI Compute ISO or download it from the NVIDIA/Mellanox Web site, use the MFT utility to upgrade firmware and finally, and finally install one of Linux drivers that support that f/w. If you don't have any issues, better don't upgrade (considering that Linux OS can still change its routing or NIC names during routine maintenance operations).
+
+In theory, if Linux is installed on the second internal disk, disk #1 (not disk #0, where NetApp HCI Bootstrap OS is installed in the case of NetApp HCI with VMware), you may be able to update BIOS, BMC and other f/w from NetApp NDE, while leaving Linux in place (on disk #1). This is how it works for ESXi, but it's not explicitly supported with Linux. It should work, though.
 
 ## Demo Videos
 
