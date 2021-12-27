@@ -114,6 +114,7 @@ devices {
 ## Containers
 
 - See the Containers section of [awesome-solidfire](https://github.com/scaleoutsean/awesome-solidfire#kubernetes-and-containers)
+- If you ruse CoreOS, Flatcar Container Linux, see [this post](https://scaleoutsean.github.io/2021/12/07/flatcar-linux-with-solidfire-iscsi.html)
 
 ## NetApp HCI Compute Nodes
 
