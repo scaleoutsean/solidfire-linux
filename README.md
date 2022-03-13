@@ -293,7 +293,9 @@ In theory, if Linux is installed on the second internal disk, disk #1 (not disk 
 
 ## Demo Videos
 
-- [OpenStack](https://youtu.be/-1as-njjNzc) - basic demo of how OpenStack Cinder works with SolidFire iSCSI
+I'm not actively updating this list - please just use a search engine or check my [blog](https://scaleoutsean.github.io/2022/02/22/openstack-solidfire.html).
+
+- [OpenStack](hhttps://scaleoutsean.github.io/2022/02/22/openstack-solidfire.htm) - basic demo of how OpenStack Cinder works with SolidFire iSCSI
 - [Rancher k3s & NetApp Trident with SolidFire iSCSI back-end](https://youtu.be/CS5iEPGOfA4)
 - [Booting Debian Linux from SolidFire iSCSI Target](https://youtu.be/JVZoMGxte4c) - based on generic Linux documentation
 - [Essential KVM Storage management with SolidFire and Cockpit Web UI, virsh and SolidFire Python CLI](https://youtu.be/8cYk2gNnMo8)
