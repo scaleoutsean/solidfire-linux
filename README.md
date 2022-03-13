@@ -65,7 +65,7 @@ For additional SolidFire-related information, please refer to [awesome-solidfire
 
 - SolidFire supports open-iscsi iSCSI initiator
   - Default options work well (the KISS principle!)
-    - If using RHCOS >=4.5 or RHEL or CentOS >=8.2 ensure that the CHAP authentication algorithm is set to MD5 in /etc/iscsi/iscsid.conf (`sudo sed -i 's/^\(node.session.auth.chap_algs\).*/\1 = MD5/' /etc/iscsi/iscsid.conf`)
+    - If using RHCOS >=4.5 or RHEL or CentOS >=8.2 or other recent Linux distribution releases, ensure that the CHAP authentication algorithm is set to MD5 in /etc/iscsi/iscsid.conf (`sudo sed -i 's/^\(node.session.auth.chap_algs\).*/\1 = MD5/' /etc/iscsi/iscsid.conf`). This applies to as of now latest SolidFire 12.3 and earlier
   - I haven't seen evidence that changing other iSCSI initiator options helps more than it hurts, at least for workloads that commonly run on SolidFire
 - Use CHAP, IQNs, VLANs or "all of the above"?
   - CHAP is easier and recommended for NetApp Trident (i.e. container environments)
