@@ -7,29 +7,29 @@ For additional SolidFire-related information, please refer to [awesome-solidfire
 <!-- TOC -->
 
 - [solidfire-linux: Notes on Linux with NetApp SolidFire](#solidfire-linux-notes-on-linux-with-netapp-solidfire)
-    - [General Notes](#general-notes)
-    - [iSCSI Client Configuration Notes](#iscsi-client-configuration-notes)
-        - [NetApp TR-4639](#netapp-tr-4639)
-        - [Networking](#networking)
-        - [iSCSI](#iscsi)
-        - [Multipath I/O](#multipath-io)
-        - [udev rules](#udev-rules)
-    - [Virtualization](#virtualization)
-    - [Containers](#containers)
-    - [NetApp HCI Compute Nodes](#netapp-hci-compute-nodes)
-        - [NetApp Active IQ OneCollect](#netapp-active-iq-onecollect)
-        - [NetApp H410C and H300E/H500E/H700E](#netapp-h410c-and-h300eh500eh700e)
-            - [Network Adapters and Ports](#network-adapters-and-ports)
-        - [NetApp H615C](#netapp-h615c)
-        - [Sample Configuration Files](#sample-configuration-files)
-            - [netplan](#netplan)
-            - [fstab](#fstab)
-        - [Linux Driver Updates for NetApp HCI Compute Nodes](#linux-driver-updates-for-netapp-hci-compute-nodes)
-            - [Installation](#installation)
-            - [Update](#update)
-    - [Demo Videos](#demo-videos)
-    - [Frequently Asked Questions](#frequently-asked-questions)
-    - [License and Trademarks](#license-and-trademarks)
+  - [General Notes](#general-notes)
+  - [iSCSI Client Configuration Notes](#iscsi-client-configuration-notes)
+    - [NetApp TR-4639](#netapp-tr-4639)
+    - [Networking](#networking)
+    - [iSCSI](#iscsi)
+    - [Multipath I/O](#multipath-io)
+    - [udev rules](#udev-rules)
+  - [Virtualization](#virtualization)
+  - [Containers](#containers)
+  - [NetApp HCI Compute Nodes](#netapp-hci-compute-nodes)
+    - [NetApp Active IQ OneCollect](#netapp-active-iq-onecollect)
+    - [NetApp H410C (and H300E/H500E/H700E)](#netapp-h410c-and-h300eh500eh700e)
+      - [Network Adapters and Ports](#network-adapters-and-ports)
+    - [NetApp H615C](#netapp-h615c)
+    - [Sample Configuration Files](#sample-configuration-files)
+      - [netplan](#netplan)
+      - [fstab](#fstab)
+    - [Linux Driver Updates for NetApp HCI (Compute) Nodes](#linux-driver-updates-for-netapp-hci-compute-nodes)
+      - [Installation](#installation)
+      - [Update](#update)
+  - [Demo Videos](#demo-videos)
+  - [Frequently Asked Questions](#frequently-asked-questions)
+  - [License and Trademarks](#license-and-trademarks)
 
 <!-- /TOC -->
 
@@ -114,7 +114,8 @@ devices {
 ## Containers
 
 - See the Containers section of [awesome-solidfire](https://github.com/scaleoutsean/awesome-solidfire#kubernetes-and-containers)
-- If you ruse CoreOS, Flatcar Container Linux, see [this post](https://scaleoutsean.github.io/2021/12/07/flatcar-linux-with-solidfire-iscsi.html)
+- If you ruse CoreOS or Flatcar Container Linux, see [this post](https://scaleoutsean.github.io/2021/12/07/flatcar-linux-with-solidfire-iscsi.html)
+- VMware Photon - see [this](https://github.com/scaleoutsean/photon-solidfire) and the blog post linked in the README
 
 ## NetApp HCI Compute Nodes
 
