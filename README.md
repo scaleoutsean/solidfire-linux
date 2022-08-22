@@ -35,7 +35,7 @@ For additional SolidFire-related information, please refer to [awesome-solidfire
 
 ## General Notes
 
-- Each SolidFire volume is available at a single (iSCSI) IP address. Different iSCSI targets (volumes) may be served over different tagged or untagged iSCSI networks and VLANs when SolidFire is attached to iSCSI networks in switch ports configured in Trunk (or Hybrid) Mode.
+- Each SolidFire volume is available at a single (iSCSI) IP address at the same time. Different iSCSI targets (volumes) may be served over different tagged or untagged iSCSI networks and VLANs when SolidFire is attached to iSCSI networks in switch ports configured in Trunk (or Hybrid) Mode.
   - iSCSI clients login to SolidFire portal - Storage Virtual IP (SVIP) - which redirects each to the SolidFire node which hosts the target (volume) of interest (iSCSI login redirection is described in [RFC-3720](https://tools.ietf.org/html/rfc3720))
   - Volumes are ocassionally rebalanced (the storage node on which they are active changes) and do that transparently to the client (which attempts to access the target and gets redirected to the new location on a different SolidFire storage node)
 - Multiple connections from one iSCSI client to single volume (with or without Multipath IO) are rarely needed (NetApp AFF and E-Series are more suitable one or few large workloads)
@@ -65,7 +65,7 @@ For additional SolidFire-related information, please refer to [awesome-solidfire
 
 - SolidFire supports open-iscsi iSCSI initiator
   - Default options work well (the KISS principle!)
-    - If using RHCOS >=4.5 or RHEL or CentOS >=8.2 or other recent Linux distribution releases, ensure that the CHAP authentication algorithm is set to MD5 in /etc/iscsi/iscsid.conf (`sudo sed -i 's/^\(node.session.auth.chap_algs\).*/\1 = MD5/' /etc/iscsi/iscsid.conf`). This applies to as of now latest SolidFire 12.3 and earlier
+    - If using RHCOS >=4.5 or RHEL, CentOS >=8.2, Rocky Linux 8/9, or other recent Linux distribution releases, ensure that the CHAP authentication algorithm is set to MD5 in /etc/iscsi/iscsid.conf (`sudo sed -i 's/^\(node.session.auth.chap_algs\).*/\1 = MD5/' /etc/iscsi/iscsid.conf`). This applies to as of now latest SolidFire 12.3 and earlier.
   - I haven't seen evidence that changing other iSCSI initiator options helps more than it hurts, at least for workloads that commonly run on SolidFire
 - Use CHAP, IQNs, VLANs or "all of the above"?
   - CHAP is easier and recommended for NetApp Trident (i.e. container environments)
