@@ -37,7 +37,7 @@ For additional SolidFire-related information, please refer to [awesome-solidfire
 
 - Each SolidFire volume is available at a single (iSCSI) IP address at the same time. Different iSCSI targets (volumes) may be served over different tagged or untagged iSCSI networks and VLANs when SolidFire is attached to iSCSI networks in switch ports configured in Trunk (or Hybrid) Mode.
   - iSCSI clients login to SolidFire portal - Storage Virtual IP (SVIP) - which redirects each to the SolidFire node which hosts the target (volume) of interest (iSCSI login redirection is described in [RFC-3720](https://tools.ietf.org/html/rfc3720))
-  - Volumes are ocassionally rebalanced (the storage node on which they are active changes) and do that transparently to the client (which attempts to access the target and gets redirected to the new location on a different SolidFire storage node)
+  - Volumes are occasionally rebalanced (the storage node on which they are active changes) and do that transparently to the client (which attempts to access the target and gets redirected to the new location on a different SolidFire storage node)
 - Multiple connections from one iSCSI client to single volume (with or without Multipath IO) are rarely needed (NetApp AFF and E-Series are more suitable one or few large workloads)
   - Network adapter teaming (bonding) creates one path to a volume and provides link redundancy, which is enough for 90% of SolidFire use cases
   - There are several ways to create two iSCSI connections to a SolidFire volume. They require Multipath I/O and one of the following (this is not a complete list):
@@ -58,25 +58,25 @@ For additional SolidFire-related information, please refer to [awesome-solidfire
 - Consider disabling or discarding:
   - IPv6 on ports used on iSCSI network(s), if you don't have other, IPv6-capable iSCSI targets in your environment
   - DHCP service on iSCSI and Live Migration network(s), but if you have to run DHCP on those networks, hand out MTU 9000 through DHCP options
-- It appears that light and moderate workloads don't require any tuning on iSCSI clients (even Jumbo Frames, although that is reccommended)
+- It appears that light and moderate workloads don't require any tuning on iSCSI clients (even Jumbo Frames, although that is recommended)
 - It is practically mandatory to use Trunk (or Hybrid) Mode on 10/25 GigE because in all likelihood you'll need more than one VLAN for iSCSI, backup and other purposes. Mellanox SN2010 has a variant of it, Hybrid Mode
 
 ### iSCSI
 
 - SolidFire supports open-iscsi iSCSI initiator
   - Default options work well (the KISS principle!)
-    - If using SolidFire 12.5 with RHCOS >=4.5 or RHEL, CentOS >=8.2, Rocky Linux 8/9, or other recent Linux distribution releases, ensure that the CHAP authentication algorithm is set to MD5 in /etc/iscsi/iscsid.conf (`sudo sed -i 's/^\(node.session.auth.chap_algs\).*/\1 = MD5/' /etc/iscsi/iscsid.conf`). SolidFire 12.7 supports additional CHAP algorithms.
+    - If using SolidFire 12.5 with RHCOS >=4.5 or RHEL, CentOS >=8.2, Rocky Linux 8/9, or other recent Linux distribution releases, ensure that the CHAP authentication algorithm is set to MD5 in /etc/iscsi/iscsid.conf (`sudo sed -i 's/^\(node.session.auth.chap_algs\).*/\1 = MD5/' /etc/iscsi/iscsid.conf`). SolidFire 12.7 supports additional CHAP algorithms and no changes are necessary.
   - I haven't seen evidence that changing other iSCSI initiator options helps more than it hurts, at least for workloads that commonly run on SolidFire
 - Use CHAP, IQNs, VLANs or "all of the above"?
   - CHAP is easier and recommended for NetApp Trident (i.e. container environments)
-  - KVM clusters can use IQNs and SolidFire Volume Access Group (VAG) let you group IQNs from multiple systems into goups so when a volume is created and assigned to a VAG, it is accessible to any of the hosts in the IQN group
+  - KVM clusters can use IQNs and SolidFire Volume Access Group (VAG) let you group IQNs from multiple systems into groups, so when a volume is created and assigned to a VAG, it is accessible to any of the hosts in the IQN group
   - An environment can use multiple approaches (e.g. IQNs from several KVM servers grouped into SolidFire Volume Access Groups and 3 CHAP accounts for 3 Kubernetes clusters in the same environment)
   - Volume access may require both VAG membership and CHAP authentication (see Element documentation for the higher v11 versions or v12.0)
 - Configure and set up Linux client as you normally would, based on your Linux distribution's documentation for iSCSI. List of packages required for iSCSI on RPM and DEB based distributions can be found in [NetApp Trident docs](https://netapp-trident.readthedocs.io/en/latest/docker/install/host_config.html), but you should really read generic docs for you distribution. As mentioned earlier, multipathd and device-mapper-multipath are usually not required if you only use SolidFire iSCSI targets.
 
 ### Multipath I/O
 
-- If you don't have multiple links to SolidFire or other iSCSI target(s), you probably don't need it (one thing less to install, configure, wait for to start-up, and break-fix). Of course, you'd have VM or container failovers if a switch or cable fails
+- If you don't have multiple links to SolidFire or other iSCSI target(s), you probably don't need it (one thing less to install, configure, wait for to start-up, and break-fix). Of course, you'd have VM or container fail-overs if a switch or cable fails
 - There are no recent performance comparisons of various bonding options for SolidFire Linux clients. LACP should give best results in terms of performance, but feel free to experiment with other options
 - multipath.conf: try adding a `device` section that looks like this (this should be quite accurate; VMware MPIO settings for SolidFire also balance I/O in batches of 10)
 
@@ -101,6 +101,15 @@ devices {
 }
 ```
 
+- With Trident v23.01 on Ubuntu 22.04 I noticed a system error message to set `find_multipaths no` in multipath.conf. Setting it makes the error go away. Example:
+
+```raw
+defaults {
+    user_friendly_names yes
+    find_multipaths no
+}
+```
+
 ### udev rules
 
 - There are various udev rule examples in SolidFire Linux-related TRs, but like with other "tuning" suggestions I haven't seen much evidence that one device setting (say, `max_sectors_kb=1024`) is better or worse than any other, any why. Until I know, I'd rather not customize those settings
@@ -110,6 +119,7 @@ devices {
 ## Virtualization
 
 - See the Virtualization section of [awesome-solidfire](https://github.com/scaleoutsean/awesome-solidfire#virtualization)
+- KubeVirt is mentioned in the Containers section
 
 ## Containers
 
@@ -127,7 +137,7 @@ devices {
 ### NetApp H410C (and H300E/H500E/H700E)
 
 - Consider disabling IPv6 on interfaces used on iSCSI network(s), if you don't have other, IPv6-capable iSCSI targets in your environment
-- Recent Linux distributions come with all drivers required and some (like RHEL) may be more prescriptive and support only specific versions. But, as mentioned above, free feel to download and use any driver version that works for you and that is supported by your distro (if you care about that). 
+- Recent Linux distributions come with all drivers required and some (like RHEL) may be more prescriptive and support only specific versions. But, as mentioned above, free feel to download and use any driver version that works for you and that is supported by your distribution (if you care about that). 
   - Mellanox ConnectX-4 Lx NIC driver ([Mellanox EN and OFED Drivers](https://www.mellanox.com/products/adapter-ethernet-sw) - mlnx-en-dkms ensures auto-rebuild on kernel change. NOTE: [NIC firmware](https://www.mellanox.com/support/firmware/connectx4lxen) tested with various Mellanox drivers is distributed separately, so best take it easy to rushing with driver updates! A safe approach is to use latest firmware recommended for NetApp HCI (with VMware) and use the latest driver that works with that firmware version.
   - (Optional, for those who use RJ-45 NIC ports) Intel X550 NIC driver ([v5.7.1](https://downloadcenter.intel.com/download/14687/Intel-Network-Adapter-Driver-for-PCIe-Intel-10-Gigabit-Ethernet-Network-Connections-Under-Linux-))
   - (Optional) [ASpeed Linux Driver](https://www.aspeedtech.com/support.php?fPath=24) - to address the cosmetic "/lib/firmware/ast_dp501_fw.bin for module ast" warning
@@ -274,6 +284,7 @@ network:
 ### Linux Driver Updates for NetApp HCI (Compute) Nodes
 
 This are my unofficial notes. Please verify with your NetApp account team if you want to know the official version.
+
 #### Installation
 
 General approach (example for Mellanox NIC(s) on the H410C and H615C):
