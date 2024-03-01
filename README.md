@@ -14,8 +14,10 @@ For additional SolidFire-related information, please refer to [awesome-solidfire
     - [iSCSI](#iscsi)
     - [Multipath I/O](#multipath-io)
     - [udev rules](#udev-rules)
+    - [TRIM / UNMAP](#trim--unmap)
   - [Virtualization](#virtualization)
   - [Containers](#containers)
+  - [Filesystems with compression feature](#filesystems-with-compression-feature)
   - [NetApp HCI Compute Nodes](#netapp-hci-compute-nodes)
     - [NetApp Active IQ OneCollect](#netapp-active-iq-onecollect)
     - [NetApp H410C (and H300E/H500E/H700E)](#netapp-h410c-and-h300eh500eh700e)
@@ -116,6 +118,11 @@ defaults {
 - `udevadm info` can be used to show you how to compose a SolidFire specific rule
 - TODO
 
+### TRIM / UNMAP
+
+- `discard=async` mount option is on by default in filesystems that support it since Linux kernel 6.2
+- filesystems with older kernels need to have that specified in filesystem settings or mount options
+
 ## Virtualization
 
 - See the Virtualization section of [awesome-solidfire](https://github.com/scaleoutsean/awesome-solidfire#virtualization)
@@ -126,6 +133,11 @@ defaults {
 - See the Containers section of [awesome-solidfire](https://github.com/scaleoutsean/awesome-solidfire#kubernetes-and-containers)
 - If you ruse CoreOS or Flatcar Container Linux, see [this post](https://scaleoutsean.github.io/2021/12/07/flatcar-linux-with-solidfire-iscsi.html)
 - VMware Photon - see [this](https://github.com/scaleoutsean/photon-solidfire) and the blog post linked in the README
+
+## Filesystems with compression feature
+
+- SolidFire uses LZ4, while some filesystems support other algorithms which may work better. However, that negatively impacts SolidFire's compression *and* deduplication (which happens after compression), so any extra savings obtained from a different compression algorithm may turn out to use more disk space as such blocks will not be deduplicated against same blocks stored by another filesystem
+- If you have SolidFire volumes that are performance-constrained, sacrificing efficiency for lower IOPS/throughput from iSCSI clients may help you gain extra performance at the cost of a lower storage efficiency. See my blog for an ZFS example.
 
 ## NetApp HCI Compute Nodes
 
