@@ -67,7 +67,7 @@ For additional SolidFire-related information, please refer to [awesome-solidfire
 
 - SolidFire supports open-iscsi iSCSI initiator
   - Default options work well (the KISS principle!)
-    - If using SolidFire 12.5 with RHCOS >=4.5 or RHEL, CentOS >=8.2, Rocky Linux 8/9, or other recent Linux distribution releases, ensure that the CHAP authentication algorithm is set to MD5 in /etc/iscsi/iscsid.conf (`sudo sed -i 's/^\(node.session.auth.chap_algs\).*/\1 = MD5/' /etc/iscsi/iscsid.conf`). SolidFire 12.7 supports additional CHAP algorithms and no changes are necessary.
+    - If using SolidFire 12.5 with RHCOS >=4.5 or RHEL, CentOS >=8.2, Rocky Linux 8/9, or other recent Linux distribution releases with SolidFire 12.5 or older, ensure that the CHAP authentication algorithm is set to MD5 in /etc/iscsi/iscsid.conf (`sudo sed -i 's/^\(node.session.auth.chap_algs\).*/\1 = MD5/' /etc/iscsi/iscsid.conf`). SolidFire 12.7 supports additional CHAP algorithms and no changes are necessary.
   - I haven't seen evidence that changing other iSCSI initiator options helps more than it hurts, at least for workloads that commonly run on SolidFire
 - Use CHAP, IQNs, VLANs or "all of the above"?
   - CHAP is easier and recommended for NetApp Trident (i.e. container environments)
@@ -121,7 +121,7 @@ defaults {
 ### TRIM / UNMAP
 
 - `discard=async` mount option is on by default in filesystems that support it since Linux kernel 6.2
-- filesystems with older kernels need to have that specified in filesystem settings or mount options
+- filesystems with older kernels should have `discard` set in filesystem settings or mount options if they want rethin to work. Alternatively you may schedule`fstrim` to run daily or hourly
 
 ## Virtualization
 
@@ -319,6 +319,8 @@ In theory, if Linux is installed on the second internal disk, disk #1 (not disk 
 
 I'm not actively updating this list - please just use a search engine or check my [blog](https://scaleoutsean.github.io/2022/02/22/openstack-solidfire.html).
 
+- [Ubuntu 24.04 LTS with SolidFire and ZFS](https://scaleoutsean.github.io/2024/02/29/ubuntu-2404-lts-with-netapp-solidfire.html) - includes some findings from enabling client-side compression 
+- [Presenting SolidFire iSCSI devices to KVM](https://scaleoutsean.github.io/2024/02/11/add-solidfire-storage-from-kvm.html)
 - [OpenStack](hhttps://scaleoutsean.github.io/2022/02/22/openstack-solidfire.htm) - basic demo of how OpenStack Cinder works with SolidFire iSCSI
 - [Rancher k3s & NetApp Trident with SolidFire iSCSI back-end](https://youtu.be/CS5iEPGOfA4)
 - [Booting Debian Linux from SolidFire iSCSI Target](https://youtu.be/JVZoMGxte4c) - based on generic Linux documentation
