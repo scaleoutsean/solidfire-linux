@@ -321,7 +321,7 @@ I'm not actively updating this list - please just use a search engine or check m
 
 - [Ubuntu 24.04 LTS with SolidFire and ZFS](https://scaleoutsean.github.io/2024/02/29/ubuntu-2404-lts-with-netapp-solidfire.html) - includes some findings from enabling client-side compression 
 - [Presenting SolidFire iSCSI devices to KVM](https://scaleoutsean.github.io/2024/02/11/add-solidfire-storage-from-kvm.html)
-- [OpenStack](hhttps://scaleoutsean.github.io/2022/02/22/openstack-solidfire.htm) - basic demo of how OpenStack Cinder works with SolidFire iSCSI
+- [OpenStack](https://scaleoutsean.github.io/2022/02/22/openstack-solidfire.htm) - basic demo of how OpenStack Cinder works with SolidFire iSCSI
 - [Rancher k3s & NetApp Trident with SolidFire iSCSI back-end](https://youtu.be/CS5iEPGOfA4)
 - [Booting Debian Linux from SolidFire iSCSI Target](https://youtu.be/JVZoMGxte4c) - based on generic Linux documentation
 - [Essential KVM Storage management with SolidFire and Cockpit Web UI, virsh and SolidFire Python CLI](https://youtu.be/8cYk2gNnMo8)
